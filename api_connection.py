@@ -38,12 +38,11 @@ horse_racing_event_type = trading.betting.list_event_types(
 # print(len(horse_racing_event_type))
 # print(horse_racing_event_type[0])
 # print(vars(horse_racing_event_type[0]))
-
 # Get the first element of the list
 horse_racing_event_type = horse_racing_event_type[0]
 
 horse_racing_event_type_id = horse_racing_event_type.event_type.id
-print(f"The event type id for horse racing is {horse_racing_event_type_id}")
+# print(f"The event type id for horse racing is {horse_racing_event_type_id}")
 
 # Define a market filter
 uk_event_filter = blw.filters.market_filter(
@@ -71,14 +70,14 @@ gb_hr_events_today = pd.DataFrame({
 })
 
 gb_hr_events_today = gb_hr_events_today[gb_hr_events_today['Event Name'] != "Specials"]
-print(vars(uk_hr_events[0]))
+# print(vars(uk_hr_events[0]))
 gb_hr_events_today.sort_values('Open Date', inplace=True)
 print(gb_hr_events_today)
+# print(gb_hr_events_today['Event ID'].iloc[1])
 
-print(gb_hr_events_today['Event ID'].iloc[1])
 # Define a market filter
 market_types_filter = blw.filters.market_filter(market_type_codes=['WIN'], event_ids=[gb_hr_events_today['Event ID'].iloc[0]])
-print(gb_hr_events_today['Event ID'].iloc[1])
+
 # Request market types
 market_types = trading.betting.list_market_types(
         filter=market_types_filter
@@ -120,11 +119,11 @@ market_types_mooney_valley = pd.DataFrame({
 })
 
 print(market_types_mooney_valley)
-description = market_types_mooney_valley['runners'][0]
-
-print(description[0])
-for runner in description:
-    print(runner[0])
+# description = market_types_mooney_valley['runners'][0]
+#
+# print(description[0])
+# for runner in description:
+#     print(runner[0])
 def process_runner_books(runner_books):
     '''
     This function processes the runner books and returns a DataFrame with the best back/lay prices + vol for each runner
@@ -202,5 +201,51 @@ i=100
 #     os.system('clear')
 #     print(i,runners_df)
 #     i=i-1
+trading.race_card.login()
+
+# update
+market_id = "1.208150104"
+
+# race card request (provide list / returns list)
+race_cards = trading.race_card.get_race_card(market_ids=[market_id])
+
+
+print(race_cards)
+for race_card in race_cards:
+    print(
+        race_card, race_card.prize, race_card.timeform_123_text
+    )  # view resources or debug to see all values available
+
+    for runner in race_card.runners:
+        print(runner.name, runner.comment)
+
+
+# results request (provide list / returns list of dictionaries)
+results = trading.race_card.get_race_result(market_ids=[market_id])
+
+print(results)
+for result in results:
+    print(result)
+
+event_ids=['31995306']
+# timelines request (provide list / returns list)
+timelines = trading.in_play_service.get_event_timelines(event_ids=event_ids)
+print(timelines)
+for timeline in timelines:
+    for update in timeline.update_detail:
+        print(
+            update.update_id,
+            update.elapsed_regular_time,
+            update.type,
+            update.update_time,
+        )  # view resources or debug to see all values available
+
+timeline = trading.in_play_service.get_event_timeline(event_id=event_ids[0])
+print(timeline)
+for update in timeline.update_detail:
+    print(
+        update.update_id, update.elapsed_regular_time, update.type, update.update_time
+    )  # view resources or debug to see all values available
+
 
 trading.logout()
